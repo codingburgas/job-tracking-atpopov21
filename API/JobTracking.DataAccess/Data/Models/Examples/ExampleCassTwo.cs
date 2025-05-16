@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using JobTracking.DataAccess.Data.Base;
 
-namespace JobTracking.DataAccess.Data.Models;
+namespace JobTracking.DataAccess.Data.Models.Examples;
 
 public class ExampleCassTwo : IEntity
 {
