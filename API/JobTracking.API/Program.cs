@@ -9,23 +9,23 @@ namespace JobTracking.API
 
             // Add services to the container.
             builder.AddContext();
-            builder.AddIdentity();
-            builder.AddCors();
+            /*builder.AddIdentity();
+            builder.AddCors();*/
             builder.AddServices();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            /*// Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
+            }*/
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
