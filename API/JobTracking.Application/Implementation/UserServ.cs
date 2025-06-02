@@ -2,6 +2,9 @@ using JobTracking.Application.Contracts;
 using JobTracking.Application.Contracts.Base;
 using JobTracking.DataAccess.Data.Models;
 using JobTracking.Domain.DTOs.Request;
+using JobTracking.Domain.Filters;
+using JobTracking.Domain.Filters.Base;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobTracking.Application.Implementation;
@@ -34,7 +37,7 @@ public class UserServ : IUserServ
         var resultLookup = query.ToLookup();*/
     }
 
-    public Task<UserResponseDTO> GetUser(int userID)
+    public Task<UserResponseDTO?> GetUser(int userID)
     {
         var result = (from user in Provider.Db.Users
             where user.Id == userID
@@ -59,5 +62,44 @@ public class UserServ : IUserServ
                 CreatedAt = u.CreatedAt,
             })
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<IQueryable<UserResponseDTO>> GetUsers(BaseFilter<UserFilter> filter)
+    {
+        IQueryable<User> query = Provider.Db.Users;
+        UserFilter? userFilter = filter.Filters;
+
+        if (userFilter != null)
+        {
+            if (string.IsNullOrEmpty(userFilter.Name))
+            {
+                query = query.Where(x => x.Name.Contains(userFilter.Name));
+            }
+
+            if (string.IsNullOrEmpty(userFilter.Email))
+            {
+                query = query.Where(x => x.Email.Contains(userFilter.Email));
+            }
+
+            if (string.IsNullOrEmpty(userFilter.Role))
+            {
+                query = query.Where(x => x.Role.Contains(userFilter.Role));
+            }
+
+            if (userFilter.CreatedAt == null)
+            {
+                query = query.Where(x => x.CreatedAt.ToString().Contains(userFilter.CreatedAt.ToString()));
+            }
+        }
+        
+        query = query.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
+        return query.Select(x => new UserResponseDTO()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Email = x.Email,
+            Role = x.Role,
+            CreatedAt = x.CreatedAt
+        });
     }
 }
