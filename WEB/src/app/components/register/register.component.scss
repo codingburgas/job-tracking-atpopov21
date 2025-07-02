@@ -1,0 +1,121 @@
+$primary-color: #6c63ff;
+$background-gradient: linear-gradient(135deg, #667eea, #764ba2);
+$input-bg: #f4f4f4;
+$text-color: #333;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  height: 100vh;
+  background: $background-gradient;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-wrapper {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $background-gradient;
+}
+
+@keyframes riseFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-container {
+  background: #fff;
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+
+  animation: riseFadeIn 0.6s ease forwards;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+
+  h2 {
+    color: $primary-color;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: gray;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: $text-color;
+    }
+
+    input {
+      padding: 0.75rem;
+      border: none;
+      border-radius: 0.5rem;
+      background-color: $input-bg;
+      transition: box-shadow 0.3s ease;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.3);
+      }
+    }
+  }
+
+  button {
+    padding: 0.75rem;
+    background-color: $primary-color;
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background-color: darken($primary-color, 8%);
+    }
+  }
+
+  .footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+
+    a {
+      text-decoration: none;
+      color: $primary-color;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

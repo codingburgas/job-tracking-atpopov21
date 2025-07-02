@@ -1,0 +1,18 @@
+<div class="header">
+  <div class="user-info">
+    Welcome, {{ firstName }} {{ lastName }}
+  </div>
+  <button class="sign-out-btn" (click)="signOut()">Sign Out</button>
+</div>
+
+<div class="home-wrapper">
+  <div class="home-container">
+    <h2>Available Jobs</h2>
+    <div *ngFor="let job of jobs" class="job-listing">
+      <h3>{{ job.title }}</h3>
+      <p><strong>Company:</strong> {{ job.company }}</p>
+      <p>{{ job.description }}</p>
+      <button routerLink="/job-details" (click)="viewDetails(job.id)">View Details</button>
+    </div>
+  </div>
+</div>
