@@ -2,9 +2,9 @@ using JobTracking.Application.Contracts;
 using JobTracking.Application.Contracts.Base;
 using JobTracking.DataAccess.Data.Models;
 using JobTracking.Domain.DTOs.Request;
+using JobTracking.Domain.DTOs.Response;
 using JobTracking.Domain.Filters;
 using JobTracking.Domain.Filters.Base;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobTracking.Application.Implementation;
@@ -12,54 +12,24 @@ namespace JobTracking.Application.Implementation;
 public class UserServ : IUserServ
 {
     protected DependencyProvider Provider { get; set; }
-    
+
     public UserServ(DependencyProvider provider)
     {
         Provider = provider;
     }
 
-    public Task<List<User>> GetAllUsers(int age, string name)
+    public async Task<UserResponseDTO?> GetUser(int userID)
     {
-        return Provider.Db.Users
-            .Skip((age - 1) * 10)
-            .Take(10)
-            .ToListAsync();
-        
-        /*query = query.Where(u => u.Name == "admin");
-
-        var result = query.ToList();
-        var result = query.ToArray();
-        var result = query.ToDictionary();
-        var result = query.ToLookup();
-        var resultList = query.ToList();
-        var resultArr = query.ToArray();
-        var resultDict = query.ToDictionary();
-        var resultLookup = query.ToLookup();*/
-    }
-
-    public Task<UserResponseDTO?> GetUser(int userID)
-    {
-        var result = (from user in Provider.Db.Users
-            where user.Id == userID
-            select new UserResponseDTO()
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Role = user.Role,
-                CreatedAt = user.CreatedAt,
-            })
-            .FirstAsync();
-        
-        return Provider.Db.Users
+        return await Provider.Db.Users
             .Where(x => x.Id == userID)
             .Select(u => new UserResponseDTO
             {
                 Id = u.Id,
-                Name = u.Name,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
                 Email = u.Email,
                 Role = u.Role,
-                CreatedAt = u.CreatedAt,
+                CreatedAt = u.CreatedAt
             })
             .FirstOrDefaultAsync();
     }
@@ -71,35 +41,86 @@ public class UserServ : IUserServ
 
         if (userFilter != null)
         {
-            if (string.IsNullOrEmpty(userFilter.Name))
+            if (!string.IsNullOrEmpty(userFilter.Name))
             {
-                query = query.Where(x => x.Name.Contains(userFilter.Name));
+                query = query.Where(x => x.FirstName.Contains(userFilter.Name) || x.LastName.Contains(userFilter.Name));
             }
 
-            if (string.IsNullOrEmpty(userFilter.Email))
+            if (!string.IsNullOrEmpty(userFilter.Email))
             {
                 query = query.Where(x => x.Email.Contains(userFilter.Email));
             }
 
-            if (string.IsNullOrEmpty(userFilter.Role))
+            if (!string.IsNullOrEmpty(userFilter.Role))
             {
                 query = query.Where(x => x.Role.Contains(userFilter.Role));
             }
 
-            if (userFilter.CreatedAt == null)
+            if (userFilter.CreatedAt != null)
             {
-                query = query.Where(x => x.CreatedAt.ToString().Contains(userFilter.CreatedAt.ToString()));
+                query = query.Where(x => x.CreatedAt.Date == userFilter.CreatedAt.Value.Date);
             }
         }
-        
+
         query = query.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
-        return query.Select(x => new UserResponseDTO()
+
+        return query.Select(x => new UserResponseDTO
         {
             Id = x.Id,
-            Name = x.Name,
+            FirstName = x.FirstName,
+            LastName = x.LastName,
             Email = x.Email,
             Role = x.Role,
             CreatedAt = x.CreatedAt
         });
+    }
+
+    public async Task<int> CreateUser(UserRequestDTO dto)
+    {
+        if (await Provider.Db.Users.AnyAsync(u => u.Email == dto.Email))
+            throw new InvalidOperationException("Email already exists.");
+
+        var validRoles = new[] { "Admin", "User" };
+        if (!validRoles.Contains(dto.Role))
+            throw new ArgumentException("Invalid role.");
+        
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+        var user = new User
+        {
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            Role = dto.Role,
+            CreatedAt = DateTime.UtcNow,
+            Password = hashedPassword
+        };
+
+        Provider.Db.Users.Add(user);
+        await Provider.Db.SaveChangesAsync();
+        return user.Id;
+    }
+
+    public async Task<bool> UpdateUser(int id, UserRequestDTO dto)
+    {
+        var user = await Provider.Db.Users.FindAsync(id);
+        if (user == null) return false;
+
+        user.FirstName = dto.FirstName;
+        user.LastName = dto.LastName;
+        user.Email = dto.Email;
+        user.Role = dto.Role;
+        await Provider.Db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteUser(int id)
+    {
+        var user = await Provider.Db.Users.FindAsync(id);
+        if (user == null) return false;
+
+        Provider.Db.Users.Remove(user);
+        await Provider.Db.SaveChangesAsync();
+        return true;
     }
 }

@@ -25,5 +25,8 @@ namespace JobTracking.DataAccess.Data.Models
 
         [DataType(DataType.Date)]
         public DateTime AppliedDate { get; set; } = DateTime.UtcNow;
+        
+        public virtual User User { get; set; }
+        public virtual JobAd JobAd { get; set; }
     }
 }

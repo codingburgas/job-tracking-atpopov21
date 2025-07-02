@@ -29,5 +29,10 @@ namespace JobTracking.DataAccess.Data.Models
 
         [Range(0, double.MaxValue, ErrorMessage = "Salary must be a positive number.")]
         public decimal SalaryRange { get; set; }
+        
+        public virtual ICollection<JobApplication> Applications
+        {
+            get; set;
+        } = new List<JobApplication>();
     }
 }

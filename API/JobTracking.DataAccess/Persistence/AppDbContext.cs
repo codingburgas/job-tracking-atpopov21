@@ -13,7 +13,7 @@ public class AppDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=JobTracking;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=JobTracker;Trusted_Connection=True;TrustServerCertificate=True;");
         }
     }
 }

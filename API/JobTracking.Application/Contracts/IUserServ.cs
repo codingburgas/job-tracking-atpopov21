@@ -1,14 +1,15 @@
-using JobTracking.DataAccess.Data.Models;
 using JobTracking.Domain.DTOs.Request;
+using JobTracking.Domain.DTOs.Response;
 using JobTracking.Domain.Filters;
 using JobTracking.Domain.Filters.Base;
-using Microsoft.AspNetCore.Mvc;
 
 namespace JobTracking.Application.Contracts;
 
 public interface IUserServ
 {
-    public Task<List<User>> GetAllUsers(int age, string name);
-    public Task<UserResponseDTO> GetUser(int userID);
-    public Task<UserResponseDTO> GetUsers([FromBody] BaseFilter<UserFilter> filter);
+    Task<UserResponseDTO> GetUser(int userID);
+    Task<IQueryable<UserResponseDTO>> GetUsers(BaseFilter<UserFilter> filter);
+    Task<int> CreateUser(UserRequestDTO dto);
+    Task<bool> UpdateUser(int id, UserRequestDTO dto);
+    Task<bool> DeleteUser(int id);
 }

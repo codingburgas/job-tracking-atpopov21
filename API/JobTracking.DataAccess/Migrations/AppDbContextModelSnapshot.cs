@@ -77,6 +77,9 @@ namespace JobTracking.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("JobAdId")
+                        .HasColumnType("int");
+
                     b.Property<string>("JobTitle")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -91,6 +94,10 @@ namespace JobTracking.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("JobAdId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("JobApplications");
                 });
@@ -123,6 +130,35 @@ namespace JobTracking.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("JobTracking.DataAccess.Data.Models.JobApplication", b =>
+                {
+                    b.HasOne("JobTracking.DataAccess.Data.Models.JobAd", "JobAd")
+                        .WithMany("Applications")
+                        .HasForeignKey("JobAdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JobTracking.DataAccess.Data.Models.User", "User")
+                        .WithMany("Applications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobAd");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("JobTracking.DataAccess.Data.Models.JobAd", b =>
+                {
+                    b.Navigation("Applications");
+                });
+
+            modelBuilder.Entity("JobTracking.DataAccess.Data.Models.User", b =>
+                {
+                    b.Navigation("Applications");
                 });
 #pragma warning restore 612, 618
         }

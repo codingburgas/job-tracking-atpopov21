@@ -1,6 +1,8 @@
-﻿using JobTracking.Application.Implementation;
+﻿using System.Text;
+using JobTracking.Application.Contracts;
+using JobTracking.Application.Contracts.Base;
+using JobTracking.Application.Implementation;
 using JobTracking.DataAccess.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace JobTracking.API
 {
@@ -40,11 +42,22 @@ namespace JobTracking.API
  
         public static void AddServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<UserServ, UserServ>();
+            builder.Services.AddScoped<IUserServ, UserServ>();
+            builder.Services.AddScoped<IJobAddServ, JobAdService>();
+            builder.Services.AddScoped<IJobApplicationServ, JobApplicationServ>();
+            builder.Services.AddScoped<DependencyProvider>();
         }
  
         public static void AddCors(this WebApplicationBuilder builder)
         {
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularClient",
+                    policy => policy.WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
+            
             /*builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
